@@ -1,8 +1,6 @@
-## Uniq-Files OR Langohr Test
+## Langohr Test (Clojure)
 
-Sandbox for practicing AMQP, component/mount.
-
-The domain is about files, hash (md5) and removing duplicated files
+Sandbox for practicing AMQP, component/mount, using the library Langohr
 
 ### How to run it
 
