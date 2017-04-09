@@ -8,13 +8,6 @@
 (def ^{:const true}
 default-exchange-name "")
 
-(defn identity-handler
-  [channel {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
-  (let [message (String. payload "UTF-8")]
-    #_(println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
-                     message delivery-tag content-type type))
-    message))
-
 (defn
   connect-to-mq
   []
@@ -38,20 +31,12 @@ default-exchange-name "")
    (configure-handler channel queue-name (comp next message-handler))))
 
 (defn
-  to-uppercase-handler
-  [_ _ ^bytes payload]
-  (let [message (String. payload "UTF-8")]
-    #_(println (format "[to-uppercase] Received a message: %s" message))
-    (.toUpperCase message)))
-
-(defn
   handler
   [function]
   (letfn [(message [payload] (String. payload "UTF-8"))]
     (fn [_ _ ^bytes payload]
       #_(println (format "[print] Received a message: %s" message))
       (function (message payload)))))
-
 
 (defn
   publish-message
