@@ -31,11 +31,11 @@ default-exchange-name "")
     (rmq/close connection)))
 
 (defn configure-handler
-  ([channel qname message-handler]
-   (lq/declare channel qname {:exclusive false :auto-delete true})
-   (lc/subscribe channel qname message-handler {:auto-ack true}))
-  ([ch qname message-handler next]
-   (configure-handler ch qname (comp next message-handler))))
+  ([channel queue-name message-handler]
+   (lq/declare channel queue-name {:exclusive false :auto-delete true})
+   (lc/subscribe channel queue-name message-handler {:auto-ack true}))
+  ([channel queue-name message-handler next]
+   (configure-handler channel queue-name (comp next message-handler))))
 
 (defn
   to-uppercase
