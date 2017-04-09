@@ -8,7 +8,7 @@
 (def ^{:const true}
 default-exchange-name "")
 
-(defn message-handler
+(defn identity-handler
   [channel {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
   (let [message (String. payload "UTF-8")]
     #_(println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
@@ -38,14 +38,14 @@ default-exchange-name "")
    (configure-handler channel queue-name (comp next message-handler))))
 
 (defn
-  to-uppercase
+  to-uppercase-handler
   [_ _ ^bytes payload]
   (let [message (String. payload "UTF-8")]
     #_(println (format "[to-uppercase] Received a message: %s" message))
     (.toUpperCase message)))
 
 (defn
-  print
+  print-handler
   [_ _ ^bytes payload]
   (let [message (String. payload "UTF-8")]
     #_(println (format "[print] Received a message: %s" message))
@@ -72,9 +72,9 @@ default-exchange-name "")
         queue-name-print "langohr.examples.print"
         forward-to (fn [queue-name] (partial publish-message channel queue-name))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel qname message-handler (forward-to queue-name-uppercase))
-    (configure-handler channel queue-name-uppercase to-uppercase (forward-to queue-name-print))
-    (configure-handler channel queue-name-print print)
+    (configure-handler channel qname identity-handler (forward-to queue-name-uppercase))
+    (configure-handler channel queue-name-uppercase to-uppercase-handler (forward-to queue-name-print))
+    (configure-handler channel queue-name-print print-handler)
     (doall
       (for [i (range 10)]
         (publish-message channel qname (str "Hello! " i))))
