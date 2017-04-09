@@ -73,7 +73,7 @@ default-exchange-name "")
         queue-name-print "langohr.examples.print"
         forward-to (fn [queue-name] (partial publish-message channel queue-name))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel qname identity-handler (forward-to queue-name-uppercase))
+    (configure-handler channel qname (handler identity) (forward-to queue-name-uppercase))
     (configure-handler channel queue-name-uppercase (handler #(.toUpperCase %)) (forward-to queue-name-print))
     (configure-handler channel queue-name-print (handler #(println (str "MESSAGE----> " %))))
     (doall
