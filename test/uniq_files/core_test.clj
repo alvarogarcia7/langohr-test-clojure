@@ -10,8 +10,12 @@ default-exchange-name "")
 
 (defn message-handler
   [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
-  (println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
-                   (String. payload "UTF-8") delivery-tag content-type type)))
+  (println payload)
+  (let [message (String. payload "UTF-8")]
+    (println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
+                     message delivery-tag content-type type))
+    message
+    ))
 
 (defn
   connect-to-mq
@@ -29,37 +33,52 @@ default-exchange-name "")
     (rmq/close conn)))
 
 (defn configure-handler
-  [ch qname message-handler]
+  [ch qname message-handler next]
   (lq/declare ch qname {:exclusive false :auto-delete true})
-  (lc/subscribe ch qname message-handler {:auto-ack true}))
+  (lc/subscribe ch qname (comp next message-handler) {:auto-ack true}))
 
 (defn
-  get-last
-  [_ ^bytes payload]
-  (println (format "[get-last] Received a message: %s" (String. payload "UTF-8"))))
+  to-uppercase
+  [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
+  (println payload)
+  (let [message (String. payload "UTF-8")]
+    (println (format "[to-uppercase] Received a message: %s" message))
+    (.toUpperCase message)))
+
+(defn
+  print
+  [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
+  (let [message (String. payload "UTF-8")]
+    (println (format "[print] Received a message: %s" message))
+    (println (str "MESSAGE----> " message))))
 
 
 (defn
   publish-message
-  [ch qname message-type payload]
+  [ch qname payload]
+  (println (str "sending message:" payload))
   (lb/publish
     ch
     default-exchange-name
     qname
     payload
-    {:content-type "text/plain" :type "greetings.hi"}))
+    {:content-type "text/plain" :type "xxx"}))
 
 (defn test-send-messages
   []
   (let [mq (connect-to-mq)
         {ch :channel} mq
-        qname "langohr.examples.hello-world"]
+        qname "langohr.examples.hello-world"
+        queue-name-uppercase "langohr.examples.uppercase"
+        queue-name-print "langohr.examples.print"
+        ]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
-    (configure-handler ch qname message-handler)
+    (configure-handler ch qname message-handler (partial publish-message ch queue-name-uppercase))
+    (configure-handler ch queue-name-uppercase to-uppercase (partial publish-message ch queue-name-print))
+    (configure-handler ch queue-name-print print identity)
     (doall
       (for [i (range 10)]
-             (lb/publish ch default-exchange-name qname (str "Hello! " i) {:content-type "text/plain" :type
-                                                                                         "greetings.hi"})))
+        (publish-message ch qname (str "Hello! " i))))
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq mq)))
