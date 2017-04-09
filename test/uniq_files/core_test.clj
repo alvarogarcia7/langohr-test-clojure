@@ -31,7 +31,7 @@ default-exchange-name "")
    (configure-handler channel queue-name (comp next message-handler))))
 
 (defn
-  configure-handler2
+  configure-handler-by-name
   ([channel actions name]
    (let [{queue-name :queue-name handler :handler} (get-in actions [name])]
      (configure-handler channel queue-name handler)))
@@ -79,9 +79,9 @@ default-exchange-name "")
         queue-name (partial queue-name actions)
         forward-to (fn [queue-name] (partial publish-message channel queue-name))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler2 channel actions :identity (forward-to (queue-name :uppercase)))
-    (configure-handler2 channel actions :uppercase (forward-to (queue-name :print)))
-    (configure-handler2 channel actions :print)
+    (configure-handler-by-name channel actions :identity (forward-to (queue-name :uppercase)))
+    (configure-handler-by-name channel actions :uppercase (forward-to (queue-name :print)))
+    (configure-handler-by-name channel actions :print)
     (doall
       (for [i (range 10)]
         (publish-message channel (queue-name :identity) (str "Hello! " i))))
