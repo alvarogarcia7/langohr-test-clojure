@@ -77,10 +77,11 @@ default-exchange-name "")
   (let [message-queue (connect-to-mq)
         {channel :channel} message-queue
         queue-name (partial queue-name actions)
-        forward-to (fn [queue-name] (partial publish-message channel queue-name))]
+        forward-to (fn [queue-name] (partial publish-message channel queue-name))
+        forward-to (fn [destination] (forward-to (queue-name destination)))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler-by-name channel actions :identity (forward-to (queue-name :uppercase)))
-    (configure-handler-by-name channel actions :uppercase (forward-to (queue-name :print)))
+    (configure-handler-by-name channel actions :identity (forward-to :uppercase))
+    (configure-handler-by-name channel actions :uppercase (forward-to :print))
     (configure-handler-by-name channel actions :print)
     (doall
       (for [i (range 10)]
