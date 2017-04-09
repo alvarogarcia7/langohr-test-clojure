@@ -32,9 +32,12 @@ default-exchange-name "")
 
 (defn
   configure-handler2
-  [channel actions name next]
-  (let [{queue-name :queue-name handler :handler} (get-in actions [name])]
-    (configure-handler channel queue-name handler next)))
+  ([channel actions name]
+   (let [{queue-name :queue-name handler :handler} (get-in actions [name])]
+     (configure-handler channel queue-name handler)))
+  ([channel actions name next]
+   (let [{queue-name :queue-name handler :handler} (get-in actions [name])]
+     (configure-handler channel queue-name handler next))))
 
 (defn
   handler
@@ -58,10 +61,11 @@ default-exchange-name "")
 (def
   actions
   {:uppercase {:queue-name "langohr.examples.uppercase"
-               :handler    (handler #(.toUpperCase %))
-               }
+               :handler    (handler #(.toUpperCase %))}
    :identity {:queue-name "langohr.examples.hello-world"
-              :handler (handler identity)}})
+              :handler (handler identity)}
+   :print {:queue-name "langohr.examples.print"
+           :handler (handler #(println (str "MESSAGE----> " %)))}})
 
 (defn
   queue-name
@@ -73,16 +77,14 @@ default-exchange-name "")
   (let [message-queue (connect-to-mq)
         {channel :channel} message-queue
         queue-name (partial queue-name actions)
-        queue-name-print "langohr.examples.print"
-        forward-to (fn [queue-name] (partial publish-message channel queue-name))
-        print-handler (handler #(println (str "MESSAGE----> " %)))]
+        forward-to (fn [queue-name] (partial publish-message channel queue-name))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel (get-in actions [:identity :queue-name]) identity-handler (forward-to (queue-name :uppercase)))
-    (configure-handler2 channel actions :uppercase (forward-to queue-name-print))
-    (configure-handler channel queue-name-print print-handler)
+    (configure-handler2 channel actions :identity (forward-to (queue-name :uppercase)))
+    (configure-handler2 channel actions :uppercase (forward-to (queue-name :print)))
+    (configure-handler2 channel actions :print)
     (doall
       (for [i (range 10)]
-        (publish-message channel (get-in actions [:identity :queue-name]) (str "Hello! " i))))
+        (publish-message channel (queue-name :identity) (str "Hello! " i))))
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq message-queue)))
