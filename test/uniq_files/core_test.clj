@@ -62,10 +62,10 @@ default-exchange-name "")
   actions
   {:uppercase {:queue-name "langohr.examples.uppercase"
                :handler    (handler #(.toUpperCase %))}
-   :identity {:queue-name "langohr.examples.hello-world"
-              :handler (handler identity)}
-   :print {:queue-name "langohr.examples.print"
-           :handler (handler #(println (str "MESSAGE----> " %)))}})
+   :identity  {:queue-name "langohr.examples.hello-world"
+               :handler    (handler identity)}
+   :print     {:queue-name "langohr.examples.print"
+               :handler    (handler #(println (str "MESSAGE----> " %)))}})
 
 (defn
   queue-name
