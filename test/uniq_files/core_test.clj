@@ -39,14 +39,14 @@ default-exchange-name "")
 
 (defn
   to-uppercase
-  [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
+  [_ _ ^bytes payload]
   (let [message (String. payload "UTF-8")]
     #_(println (format "[to-uppercase] Received a message: %s" message))
     (.toUpperCase message)))
 
 (defn
   print
-  [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
+  [_ _ ^bytes payload]
   (let [message (String. payload "UTF-8")]
     #_(println (format "[print] Received a message: %s" message))
     (println (str "MESSAGE----> " message))))
