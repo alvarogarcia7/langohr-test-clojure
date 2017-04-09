@@ -56,11 +56,14 @@ default-exchange-name "")
         qname "langohr.examples.hello-world"
         queue-name-uppercase "langohr.examples.uppercase"
         queue-name-print "langohr.examples.print"
-        forward-to (fn [queue-name] (partial publish-message channel queue-name))]
+        forward-to (fn [queue-name] (partial publish-message channel queue-name))
+        identity-handler (handler identity)
+        uppercase-handler (handler #(.toUpperCase %))
+        print-handler (handler #(println (str "MESSAGE----> " %)))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel qname (handler identity) (forward-to queue-name-uppercase))
-    (configure-handler channel queue-name-uppercase (handler #(.toUpperCase %)) (forward-to queue-name-print))
-    (configure-handler channel queue-name-print (handler #(println (str "MESSAGE----> " %))))
+    (configure-handler channel qname identity-handler (forward-to queue-name-uppercase))
+    (configure-handler channel queue-name-uppercase uppercase-handler (forward-to queue-name-print))
+    (configure-handler channel queue-name-print print-handler)
     (doall
       (for [i (range 10)]
         (publish-message channel qname (str "Hello! " i))))
