@@ -31,6 +31,12 @@ default-exchange-name "")
    (configure-handler channel queue-name (comp next message-handler))))
 
 (defn
+  configure-handler2
+  [channel actions name next]
+  (let [{queue-name :queue-name handler :handler} (get-in actions [name])]
+    (configure-handler channel queue-name handler next)))
+
+(defn
   handler
   [function]
   (letfn [(message [payload] (String. payload "UTF-8"))]
@@ -49,20 +55,24 @@ default-exchange-name "")
     payload
     {:content-type "text/plain" :type "xxx"}))
 
+(def
+  actions
+  {:uppercase {:queue-name "langohr.examples.uppercase"
+               :handler    (handler #(.toUpperCase %))
+               }})
+
 (defn test-send-messages
   []
   (let [message-queue (connect-to-mq)
         {channel :channel} message-queue
         qname "langohr.examples.hello-world"
-        queue-name-uppercase "langohr.examples.uppercase"
         queue-name-print "langohr.examples.print"
         forward-to (fn [queue-name] (partial publish-message channel queue-name))
         identity-handler (handler identity)
-        uppercase-handler (handler #(.toUpperCase %))
         print-handler (handler #(println (str "MESSAGE----> " %)))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel qname identity-handler (forward-to queue-name-uppercase))
-    (configure-handler channel queue-name-uppercase uppercase-handler (forward-to queue-name-print))
+    (configure-handler channel qname identity-handler (forward-to (get-in actions [:uppercase :queue-name])))
+    (configure-handler2 channel actions :uppercase (forward-to queue-name-print))
     (configure-handler channel queue-name-print print-handler)
     (doall
       (for [i (range 10)]
