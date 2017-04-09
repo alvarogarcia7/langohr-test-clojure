@@ -69,10 +69,11 @@ default-exchange-name "")
         {ch :channel} mq
         qname "langohr.examples.hello-world"
         queue-name-uppercase "langohr.examples.uppercase"
-        queue-name-print "langohr.examples.print"]
+        queue-name-print "langohr.examples.print"
+        forward-to (fn [queue-name] (partial publish-message ch queue-name))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
-    (configure-handler ch qname message-handler (partial publish-message ch queue-name-uppercase))
-    (configure-handler ch queue-name-uppercase to-uppercase (partial publish-message ch queue-name-print))
+    (configure-handler ch qname message-handler (forward-to queue-name-uppercase))
+    (configure-handler ch queue-name-uppercase to-uppercase (forward-to queue-name-print))
     (configure-handler ch queue-name-print print)
     (doall
       (for [i (range 10)]
