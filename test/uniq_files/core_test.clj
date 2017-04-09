@@ -66,18 +66,18 @@ default-exchange-name "")
 (defn test-send-messages
   []
   (let [mq (connect-to-mq)
-        {ch :channel} mq
+        {channel :channel} mq
         qname "langohr.examples.hello-world"
         queue-name-uppercase "langohr.examples.uppercase"
         queue-name-print "langohr.examples.print"
-        forward-to (fn [queue-name] (partial publish-message ch queue-name))]
-    (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
-    (configure-handler ch qname message-handler (forward-to queue-name-uppercase))
-    (configure-handler ch queue-name-uppercase to-uppercase (forward-to queue-name-print))
-    (configure-handler ch queue-name-print print)
+        forward-to (fn [queue-name] (partial publish-message channel queue-name))]
+    (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
+    (configure-handler channel qname message-handler (forward-to queue-name-uppercase))
+    (configure-handler channel queue-name-uppercase to-uppercase (forward-to queue-name-print))
+    (configure-handler channel queue-name-print print)
     (doall
       (for [i (range 10)]
-        (publish-message ch qname (str "Hello! " i))))
+        (publish-message channel qname (str "Hello! " i))))
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq mq)))
