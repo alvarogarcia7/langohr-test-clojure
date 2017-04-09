@@ -32,9 +32,11 @@ default-exchange-name "")
     (rmq/close conn)))
 
 (defn configure-handler
-  [ch qname message-handler next]
-  (lq/declare ch qname {:exclusive false :auto-delete true})
-  (lc/subscribe ch qname (comp next message-handler) {:auto-ack true}))
+  ([ch qname message-handler]
+   (lq/declare ch qname {:exclusive false :auto-delete true})
+   (lc/subscribe ch qname message-handler {:auto-ack true}))
+  ([ch qname message-handler next]
+   (configure-handler ch qname (comp next message-handler))))
 
 (defn
   to-uppercase
@@ -73,7 +75,7 @@ default-exchange-name "")
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
     (configure-handler ch qname message-handler (partial publish-message ch queue-name-uppercase))
     (configure-handler ch queue-name-uppercase to-uppercase (partial publish-message ch queue-name-print))
-    (configure-handler ch queue-name-print print identity)
+    (configure-handler ch queue-name-print print)
     (doall
       (for [i (range 10)]
         (publish-message ch qname (str "Hello! " i))))
