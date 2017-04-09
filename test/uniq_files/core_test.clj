@@ -63,16 +63,21 @@ default-exchange-name "")
    :identity {:queue-name "langohr.examples.hello-world"
               :handler (handler identity)}})
 
+(defn
+  queue-name
+  [actions key]
+  (get-in actions [key :queue-name]))
+
 (defn test-send-messages
   []
   (let [message-queue (connect-to-mq)
         {channel :channel} message-queue
+        queue-name (partial queue-name actions)
         queue-name-print "langohr.examples.print"
         forward-to (fn [queue-name] (partial publish-message channel queue-name))
         print-handler (handler #(println (str "MESSAGE----> " %)))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel (get-in actions [:identity :queue-name]) identity-handler (forward-to (get-in actions
-                                                                                                     [:uppercase :queue-name])))
+    (configure-handler channel (get-in actions [:identity :queue-name]) identity-handler (forward-to (queue-name :uppercase)))
     (configure-handler2 channel actions :uppercase (forward-to queue-name-print))
     (configure-handler channel queue-name-print print-handler)
     (doall
