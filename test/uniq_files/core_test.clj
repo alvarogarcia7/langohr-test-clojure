@@ -12,7 +12,7 @@ default-exchange-name "")
   [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
   (println payload)
   (let [message (String. payload "UTF-8")]
-    (println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
+    #_(println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
                      message delivery-tag content-type type))
     message
     ))
@@ -42,14 +42,14 @@ default-exchange-name "")
   [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
   (println payload)
   (let [message (String. payload "UTF-8")]
-    (println (format "[to-uppercase] Received a message: %s" message))
+    #_(println (format "[to-uppercase] Received a message: %s" message))
     (.toUpperCase message)))
 
 (defn
   print
   [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
   (let [message (String. payload "UTF-8")]
-    (println (format "[print] Received a message: %s" message))
+    #_(println (format "[print] Received a message: %s" message))
     (println (str "MESSAGE----> " message))))
 
 
