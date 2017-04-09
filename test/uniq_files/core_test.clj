@@ -34,7 +34,7 @@ default-exchange-name "")
   handler
   [function]
   (letfn [(message [payload] (String. payload "UTF-8"))]
-    (fn [_ _ ^bytes payload]
+    (fn [channel meta ^bytes payload]
       #_(println (format "[print] Received a message: %s" message))
       (function (message payload)))))
 
