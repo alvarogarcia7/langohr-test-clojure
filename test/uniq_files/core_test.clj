@@ -65,8 +65,8 @@ default-exchange-name "")
 
 (defn test-send-messages
   []
-  (let [mq (connect-to-mq)
-        {channel :channel} mq
+  (let [message-queue (connect-to-mq)
+        {channel :channel} message-queue
         qname "langohr.examples.hello-world"
         queue-name-uppercase "langohr.examples.uppercase"
         queue-name-print "langohr.examples.print"
@@ -80,4 +80,4 @@ default-exchange-name "")
         (publish-message channel qname (str "Hello! " i))))
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
-    (disconnect-from-mq mq)))
+    (disconnect-from-mq message-queue)))
