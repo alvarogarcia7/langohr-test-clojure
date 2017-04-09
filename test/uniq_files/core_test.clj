@@ -3,8 +3,7 @@
             [langohr.channel :as lch]
             [langohr.queue :as lq]
             [langohr.consumers :as lc]
-            [langohr.basic :as lb]
-            [uniq-files.core :refer :all]))
+            [langohr.basic :as lb]))
 
 (def ^{:const true}
 default-exchange-name "")
