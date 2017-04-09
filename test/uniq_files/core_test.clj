@@ -19,9 +19,9 @@ default-exchange-name "")
   connect-to-mq
   []
   (let [connection (rmq/connect)
-        ch (lch/open connection)]
+        channel (lch/open connection)]
     {:connection connection
-     :channel    ch}))
+     :channel    channel}))
 
 (defn
   disconnect-from-mq
