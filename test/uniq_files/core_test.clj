@@ -25,8 +25,8 @@ default-exchange-name "")
 
 (defn
   disconnect-from-mq
-  [mq]
-  (let [{connection :connection channel :channel} mq]
+  [message-queue]
+  (let [{connection :connection channel :channel} message-queue]
     (rmq/close channel)
     (rmq/close connection)))
 
