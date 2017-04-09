@@ -45,12 +45,12 @@ default-exchange-name "")
     (.toUpperCase message)))
 
 (defn
-  make-print-handler
-  []
+  handler
+  [function]
   (letfn [(message [payload] (String. payload "UTF-8"))]
     (fn [_ _ ^bytes payload]
       #_(println (format "[print] Received a message: %s" message))
-      (println (str "MESSAGE----> " (message payload))))))
+      (function (message payload)))))
 
 
 (defn
@@ -75,7 +75,7 @@ default-exchange-name "")
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
     (configure-handler channel qname identity-handler (forward-to queue-name-uppercase))
     (configure-handler channel queue-name-uppercase to-uppercase-handler (forward-to queue-name-print))
-    (configure-handler channel queue-name-print (make-print-handler))
+    (configure-handler channel queue-name-print (handler #(println (str "MESSAGE----> " %))))
     (doall
       (for [i (range 10)]
         (publish-message channel qname (str "Hello! " i))))
