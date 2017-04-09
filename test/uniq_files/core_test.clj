@@ -14,8 +14,7 @@ default-exchange-name "")
   (let [message (String. payload "UTF-8")]
     #_(println (format "[consumer] Received a message: %s, delivery tag: %d, content type: %s, type: %s"
                      message delivery-tag content-type type))
-    message
-    ))
+    message))
 
 (defn
   connect-to-mq
@@ -70,8 +69,7 @@ default-exchange-name "")
         {ch :channel} mq
         qname "langohr.examples.hello-world"
         queue-name-uppercase "langohr.examples.uppercase"
-        queue-name-print "langohr.examples.print"
-        ]
+        queue-name-print "langohr.examples.print"]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
     (configure-handler ch qname message-handler (partial publish-message ch queue-name-uppercase))
     (configure-handler ch queue-name-uppercase to-uppercase (partial publish-message ch queue-name-print))
