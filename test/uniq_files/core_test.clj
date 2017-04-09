@@ -31,9 +31,9 @@ default-exchange-name "")
     (rmq/close connection)))
 
 (defn configure-handler
-  ([ch qname message-handler]
-   (lq/declare ch qname {:exclusive false :auto-delete true})
-   (lc/subscribe ch qname message-handler {:auto-ack true}))
+  ([channel qname message-handler]
+   (lq/declare channel qname {:exclusive false :auto-delete true})
+   (lc/subscribe channel qname message-handler {:auto-ack true}))
   ([ch qname message-handler next]
    (configure-handler ch qname (comp next message-handler))))
 
