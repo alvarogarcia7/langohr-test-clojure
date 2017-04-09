@@ -59,24 +59,25 @@ default-exchange-name "")
   actions
   {:uppercase {:queue-name "langohr.examples.uppercase"
                :handler    (handler #(.toUpperCase %))
-               }})
+               }
+   :identity {:queue-name "langohr.examples.hello-world"
+              :handler (handler identity)}})
 
 (defn test-send-messages
   []
   (let [message-queue (connect-to-mq)
         {channel :channel} message-queue
-        qname "langohr.examples.hello-world"
         queue-name-print "langohr.examples.print"
         forward-to (fn [queue-name] (partial publish-message channel queue-name))
-        identity-handler (handler identity)
         print-handler (handler #(println (str "MESSAGE----> " %)))]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
-    (configure-handler channel qname identity-handler (forward-to (get-in actions [:uppercase :queue-name])))
+    (configure-handler channel (get-in actions [:identity :queue-name]) identity-handler (forward-to (get-in actions
+                                                                                                     [:uppercase :queue-name])))
     (configure-handler2 channel actions :uppercase (forward-to queue-name-print))
     (configure-handler channel queue-name-print print-handler)
     (doall
       (for [i (range 10)]
-        (publish-message channel qname (str "Hello! " i))))
+        (publish-message channel (get-in actions [:identity :queue-name]) (str "Hello! " i))))
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq message-queue)))
