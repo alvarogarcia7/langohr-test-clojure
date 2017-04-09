@@ -57,7 +57,7 @@ default-exchange-name "")
 (defn
   publish-message
   [ch qname payload]
-  (println (str "sending message:" payload))
+  #_(println (str "sending message:" payload))
   (lb/publish
     ch
     default-exchange-name
