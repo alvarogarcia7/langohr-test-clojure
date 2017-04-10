@@ -58,6 +58,8 @@ default-exchange-name "")
     payload
     {:content-type "text/plain" :type "xxx"}))
 
+(def messages (atom []))
+
 (def
   actions
   {:uppercase {:queue-name "langohr.examples.uppercase"
@@ -65,7 +67,10 @@ default-exchange-name "")
    :identity  {:queue-name "langohr.examples.hello-world"
                :handler    (handler identity)}
    :print     {:queue-name "langohr.examples.print"
-               :handler    (handler #(println (str "MESSAGE----> " %)))}})
+               :handler    (handler #(do
+                                       (println (str "MESSAGE----> " %))
+                                       (swap! messages (fn [messages] (conj messages %)))
+                                       %))}})
 
 (defn
   queue-name
@@ -81,6 +86,7 @@ default-exchange-name "")
         forward-to (fn [destination] (forward-to (queue-name destination)))
         configure-channel (partial configure-handler-by-name channel actions)]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber channel)))
+    (reset! messages [])
     (configure-channel :identity (forward-to :uppercase))
     (configure-channel :uppercase (forward-to :print))
     (configure-channel :print)
