@@ -69,11 +69,9 @@ default-exchange-name "")
    :print     {:queue-name "langohr.examples.print"
                :handler    (handler #(do
                                        (println (str "MESSAGE----> " %))
-                                       (swap! messages (fn [messages] (conj messages %)))
                                        %))}
    :collect   {:queue-name "langohr.examples.collect"
                :handler    (handler #(do
-                                       (println (str "passing" %))
                                        (swap! messages (fn [messages] (conj messages %)))
                                        %))}})
 
