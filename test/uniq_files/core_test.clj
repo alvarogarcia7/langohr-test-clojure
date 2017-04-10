@@ -92,7 +92,7 @@ default-exchange-name "")
     (reset! messages [])
     (configure-channel :identity (forward-to :uppercase))
     (configure-channel :uppercase (forward-to :print))
-    (configure-channel :uppercase (forward-to :collect))
+    (configure-channel :print (forward-to :collect))
     (configure-channel :collect)
 
 
