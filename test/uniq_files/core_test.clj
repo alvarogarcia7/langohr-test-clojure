@@ -70,6 +70,11 @@ default-exchange-name "")
                :handler    (handler #(do
                                        (println (str "MESSAGE----> " %))
                                        (swap! messages (fn [messages] (conj messages %)))
+                                       %))}
+   :collect   {:queue-name "langohr.examples.collect"
+               :handler    (handler #(do
+                                       (println (str "passing" %))
+                                       (swap! messages (fn [messages] (conj messages %)))
                                        %))}})
 
 (defn
@@ -89,14 +94,15 @@ default-exchange-name "")
     (reset! messages [])
     (configure-channel :identity (forward-to :uppercase))
     (configure-channel :uppercase (forward-to :print))
-    (configure-channel :print)
+    (configure-channel :print (forward-to :collect))
+    (configure-channel :collect)
 
 
     (doall
       (for [i (range 10)]
         (publish-message channel (queue-name :identity) (str "Hello! " i))))
 
-    
+
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq message-queue)))
