@@ -84,9 +84,13 @@ default-exchange-name "")
     (configure-channel :identity (forward-to :uppercase))
     (configure-channel :uppercase (forward-to :print))
     (configure-channel :print)
+
+
     (doall
       (for [i (range 10)]
         (publish-message channel (queue-name :identity) (str "Hello! " i))))
+
+    
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (disconnect-from-mq message-queue)))
